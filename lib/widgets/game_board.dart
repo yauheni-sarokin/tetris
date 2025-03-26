@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/game_state.dart';
 import '../models/tetromino.dart';
-import 'tetris_block.dart';
+import 'animated_tetris_block.dart';
 
 class GameBoard extends StatelessWidget {
   const GameBoard({super.key});
@@ -16,6 +16,35 @@ class GameBoard extends StatelessWidget {
       ),
       child: Consumer<GameState>(
         builder: (context, gameState, child) {
+          // Создаем матрицу цветов, включающую и упавшие, и падающие фигуры
+          final displayBoard = List.generate(
+            GameState.rows,
+            (y) => List.generate(GameState.cols, (x) => gameState.board[y][x]),
+          );
+
+          // Добавляем текущую падающую фигуру на доску
+          if (gameState.currentPiece != null &&
+              gameState.currentPiecePosition != null) {
+            final piece = gameState.currentPiece!;
+            final pos = gameState.currentPiecePosition!;
+            final shape = piece.currentShape;
+
+            for (var y = 0; y < shape.length; y++) {
+              for (var x = 0; x < shape[y].length; x++) {
+                if (shape[y][x] == 1) {
+                  final boardX = x + pos.x;
+                  final boardY = y + pos.y;
+                  if (boardY >= 0 &&
+                      boardY < GameState.rows &&
+                      boardX >= 0 &&
+                      boardX < GameState.cols) {
+                    displayBoard[boardY][boardX] = piece.color;
+                  }
+                }
+              }
+            }
+          }
+
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -28,8 +57,6 @@ class GameBoard extends StatelessWidget {
                 ),
                 itemCount: GameState.rows * GameState.cols,
                 itemBuilder: (context, index) {
-                  final x = index % GameState.cols;
-                  final y = index ~/ GameState.cols;
                   return Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.white10, width: 0.5),
@@ -48,29 +75,12 @@ class GameBoard extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final x = index % GameState.cols;
                   final y = index ~/ GameState.cols;
-                  Color? blockColor = gameState.board[y][x];
+                  final blockColor = displayBoard[y][x];
 
-                  // Draw current piece
-                  if (gameState.currentPiece != null &&
-                      gameState.currentPiecePosition != null) {
-                    final piece = gameState.currentPiece!;
-                    final pos = gameState.currentPiecePosition!;
-                    final shape = piece.currentShape;
-
-                    final pieceX = x - pos.x;
-                    final pieceY = y - pos.y;
-
-                    if (pieceX >= 0 &&
-                        pieceX < shape[0].length &&
-                        pieceY >= 0 &&
-                        pieceY < shape.length) {
-                      if (shape[pieceY][pieceX] == 1) {
-                        blockColor = piece.color;
-                      }
-                    }
-                  }
-
-                  return TetrisBlock(color: blockColor);
+                  return AnimatedTetrisBlock(
+                    color: blockColor,
+                    key: ValueKey('block_${y}_${x}_${blockColor?.value}'),
+                  );
                 },
               ),
               // Game over overlay
