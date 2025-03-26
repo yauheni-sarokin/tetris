@@ -11,6 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+key.txt
+key.txt.pub
 
 # IntelliJ related
 *.iml
