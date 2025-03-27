@@ -4,6 +4,18 @@ A modern implementation of the classic Tetris game using Flutter, featuring a re
 
 ## Latest Updates
 
+### v1.2: Customizable Animation Settings
+- Added settings menu (accessible via Command + , or menu)
+- Implemented customizable block vibration settings:
+  - Toggle vibration animation on/off
+  - Adjust vibration speed (0.5x - 2.0x)
+  - Control vibration amplitude (1-10 pixels)
+- Added color shimmer customization:
+  - Toggle shimmer effect on/off
+  - Adjust shimmer animation speed (1-5 seconds)
+  - Control shimmer intensity (0-100%)
+- Added native macOS menu bar integration
+
 ### v1.1: Enhanced Visual Effects
 - Added block vibration animation (subtle movement in X and Y axes)
 - Added color shimmer effect for all tetris blocks
@@ -21,9 +33,10 @@ A modern implementation of the classic Tetris game using Flutter, featuring a re
 - Game statistics (lines cleared, time played)
 - Pause functionality
 - Visual effects:
-  - Block vibration animation
-  - Color shimmer/pulsing effect
+  - Customizable block vibration animation
+  - Adjustable color shimmer/pulsing effect
   - Retro-style block borders
+- Settings menu with animation customization
 
 ## Controls
 
@@ -35,6 +48,8 @@ A modern implementation of the classic Tetris game using Flutter, featuring a re
 - **C**: Hold current piece
 - **Esc**: Pause/Unpause game
 - **Space** (when game over): Restart game
+- **Command + ,**: Open settings
+- **Command + Q**: Quit game (macOS)
 
 ## Scoring System
 
@@ -52,6 +67,7 @@ This game is built with Flutter and follows modern development practices:
 - Pixel-perfect retro-style graphics
 - Smooth animations and controls
 - Custom animation effects for enhanced visual feedback
+- Native macOS integration
 
 ### Requirements
 
@@ -81,11 +97,14 @@ The game is structured into several key components:
 - `PreviewPanel`: Shows the hold and next pieces
 - `ScorePanel`: Displays game statistics
 - `AnimatedTetrisBlock`: Handles block animations and effects
+- `AnimationSettings`: Manages customizable animation parameters
+- `SettingsDialog`: Provides UI for animation customization
 
 The implementation includes features like:
 - Wall kicks for piece rotation
-- Block animations with shimmer and vibration effects
+- Customizable block animations with shimmer and vibration effects
 - Adaptive UI scaling
+- Native macOS menu integration
 - Ghost piece preview (coming soon)
 - Increasing difficulty over time (coming soon)
 - High score tracking (coming soon)
@@ -93,18 +112,43 @@ The implementation includes features like:
 ## Animation Details
 
 ### Block Vibration
-Each tetris block has a subtle vibration animation:
-- X-axis movement: ±2 pixels with easeInOutSine curve
-- Y-axis movement: ±1 pixel with easeInOutCubic curve
-- Animation duration: 1.5 seconds, repeating
+Each tetris block has a customizable vibration animation:
+- Enable/disable via settings
+- Adjustable speed (0.5x - 2.0x)
+- Configurable amplitude (1-10 pixels)
+- X-axis and Y-axis movement with easeInOutSine curve
+- Default settings:
+  - Speed: 1.0x
+  - Amplitude: 2 pixels
 
 ### Color Shimmer
-Blocks feature a color shimmer effect:
-- Lightness increase: 30%
-- Saturation increase: 20%
-- Slight hue shift: 15 degrees
+Blocks feature a customizable color shimmer effect:
+- Enable/disable via settings
+- Adjustable animation speed (1-5 seconds)
+- Configurable intensity (0-100%)
 - Smooth transition using easeInOutSine curve
 - Applied to both active and placed blocks
+- Default settings:
+  - Speed: 1.0x
+  - Intensity: 30%
+
+## Settings Menu
+
+The game includes a settings menu accessible via:
+- Command + , keyboard shortcut
+- Tetris menu -> Settings (macOS)
+
+Settings include:
+1. Block Vibration
+   - Enable/disable toggle
+   - Speed slider (0.5x - 2.0x)
+   - Amplitude slider (1-10 pixels)
+2. Color Shimmer
+   - Enable/disable toggle
+   - Speed slider (1-5 seconds)
+   - Intensity slider (0-100%)
+
+All settings are applied in real-time and persist during gameplay.
 
 ## Future Improvements
 
@@ -115,3 +159,5 @@ Blocks feature a color shimmer effect:
 - [ ] Add animations for line clearing
 - [ ] Add touch controls for mobile
 - [ ] Add multiplayer support
+- [ ] Add settings persistence between sessions
+- [ ] Add more customization options

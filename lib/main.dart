@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/game_state.dart';
 import 'screens/game_screen.dart';
+import 'models/animation_settings.dart';
+import 'widgets/app_menu.dart';
 
 void main() {
   runApp(const TetrisApp());
@@ -12,8 +14,11 @@ class TetrisApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => GameState(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AnimationSettings()),
+        ChangeNotifierProvider(create: (_) => GameState()),
+      ],
       child: MaterialApp(
         title: 'Tetris',
         debugShowCheckedModeBanner: false,
@@ -24,7 +29,7 @@ class TetrisApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: const GameScreen(),
+        home: const AppMenu(child: GameScreen()),
       ),
     );
   }
