@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Color;
+import 'package:flutter/material.dart';
 import 'tetromino.dart';
+import 'package:provider/provider.dart';
+import 'animation_settings.dart';
 
 class Position {
   int x;
@@ -28,23 +30,37 @@ class GameState extends ChangeNotifier {
   DateTime? gameStartTime;
   Timer? gameTimer;
   Duration gameTime = Duration.zero;
+  bool isAnimatingLineClear = false;
+
+  // Callback для анимации очистки линии
+  VoidCallback? onLineCleared;
 
   final Random _random = Random();
 
   GameState()
-    : board = List.generate(rows, (_) => List.filled(cols, null)),
-      nextPieces = [] {
+      : board = List.generate(rows, (_) => List.filled(cols, null)),
+        nextPieces = [] {
     _initializeGame();
+  }
+
+  Tetromino _generatePiece() {
+    final settings = Provider.of<AnimationSettings>(
+        navigatorKey.currentContext!,
+        listen: false);
+
+    // В тестовом режиме возвращаем только квадратные фигуры
+    if (settings.isTestModeEnabled) {
+      return Tetromino.fromType(TetrominoType.O);
+    }
+
+    return Tetromino.fromType(
+      TetrominoType.values[_random.nextInt(TetrominoType.values.length)],
+    );
   }
 
   void _initializeGame() {
     board = List.generate(rows, (_) => List.filled(cols, null));
-    nextPieces = List.generate(
-      nextPiecesCount,
-      (_) => Tetromino.fromType(
-        TetrominoType.values[_random.nextInt(TetrominoType.values.length)],
-      ),
-    );
+    nextPieces = List.generate(nextPiecesCount, (_) => _generatePiece());
     gameStartTime = DateTime.now();
     _spawnNewPiece();
     _startTimer();
@@ -64,11 +80,7 @@ class GameState extends ChangeNotifier {
     if (currentPiece != null) return;
 
     currentPiece = nextPieces.removeAt(0);
-    nextPieces.add(
-      Tetromino.fromType(
-        TetrominoType.values[_random.nextInt(TetrominoType.values.length)],
-      ),
-    );
+    nextPieces.add(_generatePiece());
 
     currentPiecePosition = Position(cols ~/ 2 - 2, 0);
 
@@ -179,6 +191,67 @@ class GameState extends ChangeNotifier {
     }
   }
 
+  void _clearLines() {
+    var linesToClear = <int>[];
+
+    // Находим все заполненные линии (сверху вниз)
+    for (var y = 0; y < rows; y++) {
+      if (board[y].every((cell) => cell != null)) {
+        linesToClear.add(y);
+      }
+    }
+
+    if (linesToClear.isNotEmpty) {
+      isAnimatingLineClear = true;
+
+      // Запускаем анимацию для каждой линии
+      if (onLineCleared != null) {
+        onLineCleared!();
+      }
+
+      final settings = Provider.of<AnimationSettings>(
+          navigatorKey.currentContext!,
+          listen: false);
+      final animationDuration = (settings.lineClearDuration * 1000).round();
+
+      // Задержка перед удалением линий (после анимации)
+      Future.delayed(Duration(milliseconds: animationDuration), () {
+        // Сортируем линии сверху вниз
+        linesToClear.sort();
+
+        // Удаляем линии и сдвигаем оставшиеся вниз
+        for (var lineIndex in linesToClear) {
+          // Сдвигаем все линии выше удаляемой вниз на одну позицию
+          for (var y = lineIndex; y > 0; y--) {
+            board[y] = List.from(board[y - 1]);
+          }
+          // Добавляем пустую линию сверху
+          board[0] = List.filled(cols, null);
+        }
+
+        lines += linesToClear.length;
+        // Score calculation based on number of lines cleared at once
+        score += switch (linesToClear.length) {
+          1 => 100,
+          2 => 300,
+          3 => 500,
+          4 => 800,
+          _ => 0,
+        };
+
+        isAnimatingLineClear = false;
+        currentPiece = null;
+        canHold = true;
+        _spawnNewPiece();
+        notifyListeners();
+      });
+    } else {
+      currentPiece = null;
+      canHold = true;
+      _spawnNewPiece();
+    }
+  }
+
   void _lockPiece() {
     if (currentPiece == null || currentPiecePosition == null) return;
 
@@ -197,35 +270,6 @@ class GameState extends ChangeNotifier {
     }
 
     _clearLines();
-    currentPiece = null;
-    canHold = true;
-    _spawnNewPiece();
-  }
-
-  void _clearLines() {
-    var linesCleared = 0;
-
-    for (var y = rows - 1; y >= 0; y--) {
-      if (board[y].every((cell) => cell != null)) {
-        board.removeAt(y);
-        board.insert(0, List.filled(cols, null));
-        linesCleared++;
-        y++; // Check the same row again as everything moved down
-      }
-    }
-
-    if (linesCleared > 0) {
-      lines += linesCleared;
-      // Score calculation based on number of lines cleared at once
-      score += switch (linesCleared) {
-        1 => 100,
-        2 => 300,
-        3 => 500,
-        4 => 800,
-        _ => 0,
-      };
-      notifyListeners();
-    }
   }
 
   void swapHoldPiece() {
@@ -268,3 +312,6 @@ class GameState extends ChangeNotifier {
     super.dispose();
   }
 }
+
+// Глобальный ключ для доступа к контексту
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

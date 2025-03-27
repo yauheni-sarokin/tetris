@@ -12,6 +12,15 @@ class AnimationSettings extends ChangeNotifier {
   double _shimmerSpeed = 1.0; // 1.0 - 5.0 секунд
   double _shimmerIntensity = 0.3; // 0.0 - 1.0
 
+  // Настройки тестового режима
+  bool _isTestModeEnabled = false;
+
+  // Настройки анимации очистки линии
+  static const double defaultLineClearDuration = 0.5; // секунды
+  static const int defaultSparkCount = 10; // количество искр на блок
+
+  double _lineClearDuration = 0.3; // Default duration in seconds
+
   // Геттеры для вибрации
   bool get isVibrationEnabled => _isVibrationEnabled;
   double get vibrationSpeed => _vibrationSpeed;
@@ -21,6 +30,11 @@ class AnimationSettings extends ChangeNotifier {
   bool get isShimmerEnabled => _isShimmerEnabled;
   double get shimmerSpeed => _shimmerSpeed;
   double get shimmerIntensity => _shimmerIntensity;
+
+  // Геттер для тестового режима
+  bool get isTestModeEnabled => _isTestModeEnabled;
+
+  double get lineClearDuration => _lineClearDuration;
 
   // Сеттеры для вибрации
   void setVibrationEnabled(bool value) {
@@ -62,6 +76,21 @@ class AnimationSettings extends ChangeNotifier {
   void setShimmerIntensity(double value) {
     if (_shimmerIntensity != value) {
       _shimmerIntensity = value;
+      notifyListeners();
+    }
+  }
+
+  // Сеттер для тестового режима
+  void setTestModeEnabled(bool value) {
+    if (_isTestModeEnabled != value) {
+      _isTestModeEnabled = value;
+      notifyListeners();
+    }
+  }
+
+  void set lineClearDuration(double value) {
+    if (value != _lineClearDuration) {
+      _lineClearDuration = value;
       notifyListeners();
     }
   }

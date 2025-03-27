@@ -7,33 +7,65 @@ class SettingsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.all(16),
+    return AlertDialog(
+      title: const Text('Настройки'),
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Настройки анимации',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
+            _buildTestModeSettings(context),
+            const SizedBox(height: 16),
             _buildVibrationSettings(context),
             const SizedBox(height: 16),
             _buildShimmerSettings(context),
-            const SizedBox(height: 24),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Закрыть'),
-              ),
-            ),
+            const SizedBox(height: 16),
+            _buildLineClearSettings(),
           ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Закрыть'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTestModeSettings(BuildContext context) {
+    return Consumer<AnimationSettings>(
+      builder: (context, settings, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  'Тестовый режим',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                Switch(
+                  value: settings.isTestModeEnabled,
+                  onChanged: settings.setTestModeEnabled,
+                ),
+              ],
+            ),
+            if (settings.isTestModeEnabled)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  'В этом режиме будут падать только квадратные фигуры',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -45,7 +77,10 @@ class SettingsDialog extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('Анимация движения кубиков'),
+                const Text(
+                  'Анимация движения кубиков',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const Spacer(),
                 Switch(
                   value: settings.isVibrationEnabled,
@@ -88,7 +123,10 @@ class SettingsDialog extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('Анимация перелива цвета'),
+                const Text(
+                  'Анимация перелива цвета',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const Spacer(),
                 Switch(
                   value: settings.isShimmerEnabled,
@@ -114,10 +152,52 @@ class SettingsDialog extends StatelessWidget {
                 max: 1.0,
                 divisions: 10,
                 label:
-                    (settings.shimmerIntensity * 100).toStringAsFixed(0) + '%',
+                    '${(settings.shimmerIntensity * 100).toStringAsFixed(0)}%',
                 onChanged: settings.setShimmerIntensity,
               ),
             ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildLineClearSettings() {
+    return Consumer<AnimationSettings>(
+      builder: (context, settings, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Анимация очистки линий',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Длительность: '),
+                Expanded(
+                  child: Slider(
+                    value: settings.lineClearDuration,
+                    min: 0.0,
+                    max: 1.0,
+                    divisions: 10,
+                    label: '${(settings.lineClearDuration * 1000).round()} мс',
+                    onChanged: (value) {
+                      settings.lineClearDuration = value;
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                  child:
+                      Text('${(settings.lineClearDuration * 1000).round()} мс'),
+                ),
+              ],
+            ),
           ],
         );
       },

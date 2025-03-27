@@ -4,6 +4,17 @@ A modern implementation of the classic Tetris game using Flutter, featuring a re
 
 ## Latest Updates
 
+### v1.3: Line Clear Animation and Test Mode
+- Added spectacular line clear animation:
+  - Blocks explode with particle effects
+  - Chain reaction animation from random block
+  - Customizable animation duration (0.5 seconds)
+- Added Test Mode in settings:
+  - Only square blocks spawn when enabled
+  - Perfect for testing game mechanics
+- Fixed system sound on key press
+- Improved settings menu organization
+
 ### v1.2: Customizable Animation Settings
 - Added settings menu (accessible via Command + , or menu)
 - Implemented customizable block vibration settings:
@@ -29,14 +40,16 @@ A modern implementation of the classic Tetris game using Flutter, featuring a re
 - Hold piece functionality
 - Next pieces preview (shows next 3 pieces)
 - Score tracking
-- Line clearing
+- Line clearing with particle effects
 - Game statistics (lines cleared, time played)
 - Pause functionality
 - Visual effects:
   - Customizable block vibration animation
   - Adjustable color shimmer/pulsing effect
+  - Spectacular line clear animation
   - Retro-style block borders
 - Settings menu with animation customization
+- Test mode for debugging
 
 ## Controls
 
@@ -99,12 +112,15 @@ The game is structured into several key components:
 - `AnimatedTetrisBlock`: Handles block animations and effects
 - `AnimationSettings`: Manages customizable animation parameters
 - `SettingsDialog`: Provides UI for animation customization
+- `LineClearAnimation`: Handles line clearing effects
 
 The implementation includes features like:
 - Wall kicks for piece rotation
 - Customizable block animations with shimmer and vibration effects
+- Spectacular line clear animations with particle effects
 - Adaptive UI scaling
 - Native macOS menu integration
+- Test mode for debugging
 - Ghost piece preview (coming soon)
 - Increasing difficulty over time (coming soon)
 - High score tracking (coming soon)
@@ -132,6 +148,14 @@ Blocks feature a customizable color shimmer effect:
   - Speed: 1.0x
   - Intensity: 30%
 
+### Line Clear Animation
+When a line is completed, it triggers a spectacular animation:
+- Blocks start vibrating and explode
+- Particle effects emanate from a random starting block
+- Chain reaction spreads to adjacent blocks
+- Customizable animation duration (0.5 seconds)
+- Smooth transitions and particle physics
+
 ## Settings Menu
 
 The game includes a settings menu accessible via:
@@ -139,11 +163,13 @@ The game includes a settings menu accessible via:
 - Tetris menu -> Settings (macOS)
 
 Settings include:
-1. Block Vibration
+1. Test Mode
+   - Enable/disable toggle for spawning only square blocks
+2. Block Vibration
    - Enable/disable toggle
    - Speed slider (0.5x - 2.0x)
    - Amplitude slider (1-10 pixels)
-2. Color Shimmer
+3. Color Shimmer
    - Enable/disable toggle
    - Speed slider (1-5 seconds)
    - Intensity slider (0-100%)
@@ -156,7 +182,7 @@ All settings are applied in real-time and persist during gameplay.
 - [ ] Implement difficulty progression
 - [ ] Add high score system
 - [ ] Add sound effects
-- [ ] Add animations for line clearing
+- [ ] Add more line clear animation variations
 - [ ] Add touch controls for mobile
 - [ ] Add multiplayer support
 - [ ] Add settings persistence between sessions
